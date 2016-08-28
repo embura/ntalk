@@ -9,14 +9,10 @@ var express = require('express')
 , server = require('http').createServer(app).listen(4555)
 , io = require('socket.io').listen(server)
 , cookie = cookieParser()
-
 //, favicon = require('static-favicon')
 , logger = require('morgan')
-
 , methodOverride = require('method-override')
-
 ;
-
 
 //app.use(favicon());
 app.use(logger('dev'));
@@ -39,32 +35,14 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(methodOverride('_method'));
 app.use(express.static(path.join(__dirname, 'public')));
 
-
-/* Socket irá aqui depois */
-/*
-var emitir = function(req, res, next){
-	var notificar = req.query.notificacao || '';
-	if(notificar != '')	 {
-		io.emit('notificacao', notificar);
-		next();
-	} else {
-		next();
-	}
-}
-*/
-
-
 io.sockets.on('connection', function (client) {
 	client.on('send-server', function (data) {
 		var msg = "<b>"+data.nome+":</b> "+data.msg+"<br>";
 		client.emit('send-client', msg);
 		client.broadcast.emit('send-client', msg);
-
 	});
-
 });
 
-//app.use(emitir);
 
 load('models')
 .then('controllers')
