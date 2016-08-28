@@ -1,0 +1,47 @@
+<% include ../header %>
+
+<style type="text/css">
+	#chat { list-style-type: none; margin: 0; padding: 0; }
+	#chat li { padding: 5px 10px; }
+	#chat li:nth-child(odd) { background: #eee; }
+
+</style>
+
+<header>
+	<h2>Ntalk - Chat - <%- usuario.nome %></h2>
+</header>
+
+
+<section>
+	<ul id="chat"></ul>
+	<input type="hidden" id="nome" value="<%- usuario.nome %>">
+	<input type="text" id="msg" placeholder="Mensagem" autocomplete="off">
+	<button onclick="enviar();">Enviar</button>
+</section>
+
+
+
+
+<script src="http://localhost:4555/socket.io/socket.io.js"></script>
+<script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+<script>
+	var socket = io('http://localhost:4555',{
+		transports: ['websocket', 'polling', 'flashsocket']
+	});
+	socket.on('send-client', function (msg) {
+		document.getElementById('chat').innerHTML += '<li>'+msg+'</li>';
+		msg = '';
+
+		//$('#chat').append($('<li>').text(msg));
+	});
+	var enviar = function() {
+		var nome = document.getElementById('nome').value;
+		var msg = document.getElementById('msg').value;
+		console.log('[msg] %s : %s', nome, msg);
+		socket.emit('send-server', {nome: nome, msg: msg});
+	};
+</script>
+
+
+<% include ../exit %>
+<% include ../footer %>

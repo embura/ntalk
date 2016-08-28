@@ -7,7 +7,7 @@ module.exports = function(app){
 	app.post('/contatos', autenticar, contatos.create);
 	app.get('/contatos/:id/editar', autenticar, contatos.edit);
 	app.put('/contatos/:id', autenticar, contatos.update);
-	app.del('/contatos/:id', autenticar, contatos.destroy);
+	app.delete('/contatos/:id', autenticar, contatos.destroy);
 
 };
 
