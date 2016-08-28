@@ -29,7 +29,7 @@ module.exports = function (app){
 			res.render('contatos/edit', params);
 		},
 		update: function(req,res){
-			var contato = req.bady.contato
+			var contato = req.body.contato
 			, usuario = req.session.usuario;
 			usuario.contatos[req.params.id] = contato;
 			res.redirect('/contatos');

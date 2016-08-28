@@ -6,9 +6,11 @@ var express = require('express')
 , cookieParser = require('cookie-parser')
 , expressSession = require('express-session')
 , app = express()
+, server = require('http').createServer(app).listen(4555)
+, io = require('socket.io').listen(server)
 , cookie = cookieParser()
 
-, favicon = require('static-favicon')
+//, favicon = require('static-favicon')
 , logger = require('morgan')
 
 , methodOverride = require('method-override')
@@ -16,7 +18,7 @@ var express = require('express')
 ;
 
 
-app.use(favicon());
+//app.use(favicon());
 app.use(logger('dev'));
 
 app.disable('x-powered-by');
@@ -25,10 +27,10 @@ app.set('views', __dirname + '/views');
 app.set('view engine', 'ejs');
 app.use(cookie);
 app.use(expressSession({
-  secret: 'cfg.SECRET', 
-  name: 'cfg.KEY', 
-  resave: false, 
-  saveUninitialized: false,
+	secret: 'cfg.SECRET', 
+	name: 'cfg.KEY', 
+	resave: false, 
+	saveUninitialized: false,
 }));
 
 app.use(bodyParser.json());
@@ -37,8 +39,32 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(methodOverride('_method'));
 app.use(express.static(path.join(__dirname, 'public')));
 
-//app.use(error.notFound);
-//app.use(error.serverError);
+
+/* Socket irá aqui depois */
+/*
+var emitir = function(req, res, next){
+	var notificar = req.query.notificacao || '';
+	if(notificar != '')	 {
+		io.emit('notificacao', notificar);
+		next();
+	} else {
+		next();
+	}
+}
+*/
+
+
+io.sockets.on('connection', function (client) {
+	client.on('send-server', function (data) {
+		var msg = "<b>"+data.nome+":</b> "+data.msg+"<br>";
+		client.emit('send-client', msg);
+		client.broadcast.emit('send-client', msg);
+
+	});
+
+});
+
+//app.use(emitir);
 
 load('models')
 .then('controllers')
@@ -46,6 +72,7 @@ load('models')
 .into(app)
 ;
 
-
+app.use(error.notFound);
+app.use(error.serverError);
 
 module.exports = app;

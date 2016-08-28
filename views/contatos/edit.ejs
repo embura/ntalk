@@ -4,7 +4,7 @@
 </header>
 
 <section>
-	<form action="/contatos/<%- id %>" method="post">
+	<form action="/contatos/<%- id %>?_method=put" method="post">
 		<input type="hidden" name="_method" value="put">
 		<div class="form-group">
 			<label for="contato[nome]" >Nome</label>
