@@ -1,4 +1,4 @@
-<% include ../header %>
+<% include ../partials/header.ejs %>
 
 <header>
 	<h2> Ntalk - Agenda de contatos</h2>
@@ -40,9 +40,9 @@
 					<a href="/chat/<%- contato.email %>">Conversar</a>
 				</th>
 			</tr>
-			<% }) %> <!-- Fim forEach->
+			<% }); %> <!-- Fim forEach->
 		</tbody>
 	</table>
 </section>
-<% include ../exit %>
-<% include ../footer %>
+<% include ../partials/exit.ejs %>
+<% include ../partials/footer.ejs %>

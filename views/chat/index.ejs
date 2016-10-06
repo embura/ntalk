@@ -1,26 +1,25 @@
-<% include ../header %>
+<% include ../partials/header.ejs %>
 
 <style type="text/css">
 	#chat { list-style-type: none; margin: 0; padding: 0; }
 	#chat li { padding: 5px 10px; }
 	#chat li:nth-child(odd) { background: #eee; }
-
 </style>
 
 <header>
-	<h2>Ntalk - Chat - <%- usuario.nome %></h2>
+	<h2>Ntalk - Chat </h2>
 </header>
 
 
-<section>
-	<ul id="chat"></ul>
-	<input type="hidden" id="nome" value="<%- usuario.nome %>">
-	<input type="text" id="msg" placeholder="Mensagem" autocomplete="off">
-	<button onclick="enviar();">Enviar</button>
+<section class="row-fluid">
+	<div class="span6 offset3">
+		<ul id="chat" class="pre-scrollable" style="width:auto;height:250px;"></ul>
+		<div class="input-append">
+			<input type="text" id="msg" placeholder="Mensagem" autocomplete="off">
+			<button onclick="enviar();">Enviar</button>
+		</div>
+	</div>
 </section>
-
-
-
 
 <script src="http://localhost:4555/socket.io/socket.io.js"></script>
 <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
@@ -35,13 +34,12 @@
 		//$('#chat').append($('<li>').text(msg));
 	});
 	var enviar = function() {
-		var nome = document.getElementById('nome').value;
 		var msg = document.getElementById('msg').value;
-		console.log('[msg] %s : %s', nome, msg);
-		socket.emit('send-server', {nome: nome, msg: msg});
+
+		socket.emit('send-server', {msg: msg});
 	};
 </script>
 
 
-<% include ../exit %>
-<% include ../footer %>
+<% include ../partials/exit.ejs %>
+<% include ../partials/footer.ejs %>

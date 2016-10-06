@@ -39,7 +39,7 @@ module.exports = function (app){
 			, id = req.params.id;
 			usuario.contatos.splice(id,1);
 			res.redirect('/contatos');
-		},
-	}
+		}
+	};
 	return contatosController;
-}
+};

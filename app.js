@@ -1,54 +1,71 @@
 var express = require('express')
-, path = require('path')
-, load = require('express-load')
-, error = require('./middleware/error')
-, bodyParser = require('body-parser')
-, cookieParser = require('cookie-parser')
-, expressSession = require('express-session')
-, app = express()
-, server = require('http').createServer(app).listen(4555)
-, io = require('socket.io').listen(server)
-, cookie = cookieParser()
+    , path = require('path')
+    , load = require('express-load')
+    , error = require('./middleware/error')
+    , bodyParser = require('body-parser')
+    , cookieParser = require('cookie-parser')
+    , expressSession = require('express-session')
+    , app = express()
+    , server = require('http').createServer(app).listen(4555)
+    , io = require('socket.io').listen(server)
+
 //, favicon = require('static-favicon')
-, logger = require('morgan')
-, methodOverride = require('method-override')
-;
+    , logger = require('morgan')
+    , methodOverride = require('method-override')
+    , fs = require('fs')
+    ;
 
 //app.use(favicon());
-app.use(logger('dev'));
-
 app.disable('x-powered-by');
+
+const KEY='ntalk.id',SECRET='ntalk';
+var cookie = cookieParser(SECRET)
+    , store = new expressSession.MemoryStore()
+    , sessOpts = { secret: SECRET, key: KEY, store: store, resave: false, saveUninitialized: true, cookie: { secure: false }}
+    , session = expressSession(sessOpts);
+
+
+console.log("[WARN] store",store);
 
 app.set('views', __dirname + '/views');
 app.set('view engine', 'ejs');
+
 app.use(cookie);
-app.use(expressSession({
-	secret: 'cfg.SECRET', 
-	name: 'cfg.KEY', 
-	resave: false, 
-	saveUninitialized: false,
-}));
+app.use(session);
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 
 app.use(methodOverride('_method'));
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join( __dirname, 'public')));
 
-io.sockets.on('connection', function (client) {
-	client.on('send-server', function (data) {
-		var msg = "<b>"+data.nome+":</b> "+data.msg+"<br>";
-		client.emit('send-client', msg);
-		client.broadcast.emit('send-client', msg);
-	});
+io.set('authorization', function(data, accept) {
+    cookie(data, {}, function(err) {
+        var sessionID = data.signedCookies[KEY];
+
+        store.get(sessionID, function(err, session) {
+
+            if (err || !session) {
+                console.log('[SessionID] err', err);
+                accept(null, false);
+            } else {
+                data.session = session;
+                console.log('app[SessionID] session', session);
+                accept(null, true);
+            }
+        });
+
+    });
 });
 
-
 load('models')
-.then('controllers')
-.then('routes')
-.into(app)
+    .then('controllers')
+    .then('routes')
+    .into(app)
 ;
+
+load('sockets')
+    .into(io);
 
 app.use(error.notFound);
 app.use(error.serverError);
